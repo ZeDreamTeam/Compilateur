@@ -1,6 +1,8 @@
 %{
   #include "y.tab.h"
   int fail=0;
+   extern YYSTYPE yylval;
+
 %}
 
 VARNAME ([a-zA-Z]+[0-9_]*)*
@@ -38,8 +40,8 @@ const {return tCONST;}
 "if" {return tIF;}
 "else" {return tELSE;}
 {SPACE} {printf("%s",yytext);}
-{INTEGER} {return tInt;}
-{VARNAME} {return tVar;}
+{INTEGER} { yylval.nombre = atoi(yytext); return tInt;}
+{VARNAME} {yylval.string = strdup(yytext); return tVar;}
 
 . { fail++;} 
 
