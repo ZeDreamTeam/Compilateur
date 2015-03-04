@@ -1,8 +1,9 @@
 %{
   #include "y.tab.h"
   int fail=0;
-   extern YYSTYPE yylval;
-
+  int line= 0; 
+  extern YYSTYPE yylval;
+   
 %}
 
 VARNAME ([a-zA-Z]+[0-9_]*)*
@@ -14,7 +15,7 @@ SPACE [ \t]*
 
 "/*" {BEGIN COMMENT;}
 <COMMENT>"*/" {BEGIN INITIAL;}
-<COMMENT>"\n" {}
+<COMMENT>"\n" { line++;}
 <COMMENT>. {}
 int { return tINTDECL;}
 main {return tMAIN;}
@@ -35,7 +36,7 @@ const {return tCONST;}
 "=" {return tEQ;}
 "printf" {return tPRINTF;}
 ";" {return tINSTREND;}
-"\n" {printf("\n");}
+"\n" {printf("\n");line++;}
 "//" {printf("tCOMM");}
 "if" {return tIF;}
 "else" {return tELSE;}
