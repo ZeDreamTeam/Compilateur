@@ -121,7 +121,7 @@ IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
 
 IfElseBlock: IfBlock tELSE tACCO NewContext Body QuitContext tACCC;
 
-NewContext : {};
+NewContext : {} ;
 
 QuitContext : {} ;
 
