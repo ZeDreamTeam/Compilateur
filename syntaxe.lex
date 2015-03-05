@@ -40,7 +40,7 @@ const {return tCONST;}
 "//" {printf("tCOMM");}
 "if" {return tIF;}
 "else" {return tELSE;}
-{SPACE} {printf("%s",yytext);}
+{SPACE} {}
 {INTEGER} { yylval.nombre = atoi(yytext); return tInt;}
 {VARNAME} {yylval.string = strdup(yytext); return tVar;}
 
