@@ -112,9 +112,13 @@ AffectRight: tVar {
 
 StructCondBlock: IfBlock | IfElseBlock;
 
-IfBlock: tIF tPARO Cond tPARC tACCO Body tACCC;
+IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
 
-IfElseBlock: IfBlock tELSE tACCO Body tACCC;
+IfElseBlock: IfBlock tELSE tACCO NewContext Body QuitContext tACCC;
+
+NewContext : {};
+
+QuitContext : {} ;
 
 Cond: AffectRight OperateurCondition AffectRight;
 
