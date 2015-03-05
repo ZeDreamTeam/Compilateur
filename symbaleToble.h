@@ -16,5 +16,5 @@ void setIsInit(int index);
 void symbolInit(char* name);
 int getIndexWithVarName(char* name);
 int tempAdd();
-
+int tempPop();
 #endif

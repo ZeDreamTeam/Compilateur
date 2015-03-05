@@ -43,15 +43,16 @@ Body: DeclBlock | DeclBlock BodySuite | BodySuite;
 
 DeclBlock: Decl
   | Decl DeclBlock;
-Decl: tINTDECL DeclSuite {assignTypeInSymboleTable(INT); printTableSymbole();}
-  | tCONST tINTDECL DeclSuite{assignTypeInSymboleTable(CONST_INT); printTableSymbole();};
+Decl: tINTDECL DeclSuite {assignTypeInSymboleTable(INT);}
+  | tCONST tINTDECL DeclSuite{assignTypeInSymboleTable(CONST_INT);};
 
 DeclSuite:SingleDecl tINSTREND
   | SingleDecl tVIRG DeclSuite; 
 SingleDecl: tVar {  addSymbole($1,-1, 0);} 
   | tVar tEQ AffectRight {
      int addr = addSymbole($1,-1,1);
-     printf("COP %d %d", addr, $3);
+     printf("COP %d %d\n", addr, $3);
+     tempPop();
   };
 
 
@@ -62,7 +63,7 @@ BodySuite:OperationVariable
   | StructPrint;
 
 
-OperationVariable: tVar tEQ AffectRight tINSTREND { symbolInit($1); printTableSymbole(); };
+OperationVariable: tVar tEQ AffectRight tINSTREND { symbolInit($1);};
 
 AffectRight: tVar {
     if(getIndexWithVarName($1)==-1) {
@@ -72,39 +73,39 @@ AffectRight: tVar {
       yyerror(err);
     } else {
       int affect = tempAdd();
-      printf("COP %d %d", affect, getIndexWithVarName($1));
+      printf("COP %d %d\n", affect, getIndexWithVarName($1));
       $$ = affect;
     }
   }
   | tInt {
     int affect = tempAdd();
-    printf("AFC %d %d" affect, $1);
+    printf("AFC %d %d\n", affect, $1);
     $$ = affect;
   }
   | AffectRight tADD AffectRight {
-    printf("ADD %d %d %d",  $1, $1, $2);
-    symbolePop();
+    printf("ADD %d %d %d\n",  $1, $1, $3);
+    tempPop();
     $$ = $1;
     }
   | AffectRight tSUB AffectRight {
-    printf("SOU %d %d %d", $1, $1, $2);
-    symbolePop(); 
+    printf("SOU %d %d %d\n", $1, $1, $3);
+    tempPop(); 
     $$ = $1;
   }
   | AffectRight tSTAR AffectRight {
-    printf("MUL %d %d %d", $1, $1, $2);
-    symbolePop();
+    printf("MUL %d %d %d\n", $1, $1, $3);
+    tempPop();
     $$ = $1;
   }
   | AffectRight tDIV AffectRight{
-    printf("DIV %d %d %d", $1, $1, $2);
-    symbolePop();
+    printf("DIV %d %d %d\n", $1, $1, $3);
+    tempPop();
     $$ = $1;
 
   }
   | AffectRight tPERC AffectRight {
-    printf("MOD %d %d %d", $1, $1, $2);
-    symbolePop();
+    printf("MOD %d %d %d\n", $1, $1, $3);
+    tempPop();
     $$ = $1;
   }
   | tPARO AffectRight tPARC;

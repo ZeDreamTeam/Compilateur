@@ -8,6 +8,7 @@
 
 Symbale symboles[MAX_VAR];
 int nbVar=0;
+int nbTmp = MAX_VAR;
 
 int symbolePush(char* name, int isConst, int isInit) {
   if(getIndexWithVarName(name)!=-1){
@@ -71,6 +72,11 @@ int getIndexWithVarName(char* name){
 
 
 int tempAdd() {
- nbVar++;
- return nbVar; 
+ nbTmp--;
+ return nbTmp; 
+}
+
+int tempPop() {
+  nbTmp++;
+  return nbTmp;
 }
