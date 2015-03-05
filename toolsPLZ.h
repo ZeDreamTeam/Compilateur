@@ -1,7 +1,7 @@
 #ifndef toolsPLZ
 #define toolsPLZ
 
-#define DECLMAX 15
+#define DECLMAX 256
 
 int tempTable[DECLMAX];
 enum eType {
