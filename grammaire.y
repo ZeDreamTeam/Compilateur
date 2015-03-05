@@ -16,6 +16,7 @@ void yyerror(char const  *err) {
   char* string;
   struct VarInit* vinit;
   struct VarInitTable* vinitTable;
+  int addr;
 }
  
 %token tMAIN tPARO tPARC tACCO tACCC tINSTREND
@@ -26,6 +27,7 @@ void yyerror(char const  *err) {
 %token <string>tVar
 %token tPRINTF
 
+%type <addr>AffectRight
 
 %right tEQ
 %left tADD tSUB
@@ -43,12 +45,13 @@ DeclBlock: Decl
 Decl: tINTDECL DeclSuite {assignTypeInSymboleTable(INT); printTableSymbole();}
   | tCONST tINTDECL DeclSuite{assignTypeInSymboleTable(CONST_INT); printTableSymbole();};
 
-DeclSuite:SingleDecl tINSTREND {  }
-  | SingleDecl tVIRG DeclSuite 
-    {
-    }; 
+DeclSuite:SingleDecl tINSTREND
+  | SingleDecl tVIRG DeclSuite; 
 SingleDecl: tVar {  addSymbole($1,-1, 0);} 
-  | tVar tEQ AffectRight { addSymbole($1,-1,1);};
+  | tVar tEQ AffectRight {
+     int addr = addSymbole($1,-1,1);
+     printf("COP %d %d", addr, $3);
+  };
 
 
 BodySuite:OperationVariable 
@@ -66,12 +69,44 @@ AffectRight: tVar {
       strcat(err, "Error using the var ");
       strcat(err, $1); 
       yyerror(err);
-    } }
-  | tInt
-  | AffectRight Operation AffectRight
-  | tPARO AffectRight tPARC;
+    } else {
+      int affect = tempAdd();
+      printf("COP %d %d", affect, getIndexWithVarName($1));
+      $$ = affect;
+    }
+  }
+  | tInt {
+    int affect = tempAdd();
+    printf("AFC %d %d" affect, $1);
+    $$ = affect;
+  }
+  | AffectRight tADD AffectRight {
+    printf("ADD %d %d %d",  $1, $1, $2);
+    symbolePop();
+    $$ = $1;
+    }
+  | AffectRight tSUB AffectRight {
+    printf("SOU %d %d %d", $1, $1, $2);
+    symbolePop(); 
+    $$ = $1;
+  }
+  | AffectRight tSTAR AffectRight {
+    printf("MUL %d %d %d", $1, $1, $2);
+    symbolePop();
+    $$ = $1;
+  }
+  | AffectRight tDIV AffectRight{
+    printf("DIV %d %d %d", $1, $1, $2);
+    symbolePop();
+    $$ = $1;
 
-Operation: tADD | tSUB | tSTAR | tDIV | tPERC;
+  }
+  | AffectRight tPERC AffectRight {
+    printf("MOD %d %d %d", $1, $1, $2);
+    symbolePop();
+    $$ = $1;
+  }
+  | tPARO AffectRight tPARC;
 
 StructCondBlock: IfBlock | IfElseBlock;
 
