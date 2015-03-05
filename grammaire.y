@@ -10,14 +10,6 @@ void yyerror(char const  *err) {
   exit(-1);
 }
 
-struct VarInit {
-  char* var;
-  int isInit;
-} ;
-/*struct VarInitTable {
-  struct VarInit* varInitTable[MAXDECL];
-  int nmbVariable = 0;
-}*/
 %}
 %union {
   int nombre;
@@ -30,16 +22,15 @@ struct VarInit {
 %token tCONST tINTDECL tEQEQ tVIRG
 %token tINF tSUP tADD tSUB tSTAR tDIV tPERC tEQ
 %token tIF tELSE
-%token <nombre>tInt
-%token <string>tVar
+%token tInt
+%token tVar
 %token tPRINTF
 
 %right tEQ
 %left tADD tSUB
 %left tSTAR tDIV tPERC
 
-/*%type <vinit>SingleDecl
-%type <vinitTable>DeclSuite*/
+
 %start Start
 %%
 
@@ -51,21 +42,12 @@ DeclBlock: Decl
 Decl: tINTDECL DeclSuite {assignTypeInSymboleTable(INT); printTableSymbole();}
   | tCONST tINTDECL DeclSuite{assignTypeInSymboleTable(CONST_INT); printTableSymbole();};
 
-DeclSuite:SingleDecl tINSTREND { /*$$->varInitTable[$$->nmbVariable] = $1; $$nmbVariable++;*/  }
+DeclSuite:SingleDecl tINSTREND {  }
   | SingleDecl tVIRG DeclSuite 
-    { /*
-      if($$->nmbVariable <MAXDECL-3) 
-      {
-        $$->varInitTable[$$->nmbVariable] = $1;
-        $$nmbVariable++;
-      } 
-      else
-      {
-        yyerror("Too many declarations");
-      } */ 
+    {
     } 
-SingleDecl: tVar {  addSymbole($1,-1, 0);}//*$$->var=$1;$$->isInit=0;*/ }
-  | tVar tEQ AffectRight { addSymbole($1,-1,1);};//*$$->var=$1; $$->isInit=1;*/ }
+SingleDecl: tVar {  addSymbole($1,-1, 0);} 
+  | tVar tEQ AffectRight { addSymbole($1,-1,1);};
 
 
 BodySuite:OperationVariable 
