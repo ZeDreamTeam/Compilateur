@@ -5,9 +5,10 @@
 
 int cursor = 0;
 
-void addSymbole(char* name, int isConst, int isInit){
+int addSymbole(char* name, int isConst, int isInit){
   int index = symbolePush(name, isConst, isInit);
   addToTable(index);
+  return index;
 }
 
 void addToTable(int id){

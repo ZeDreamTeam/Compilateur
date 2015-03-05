@@ -67,4 +67,10 @@ int getIndexWithVarName(char* name){
     }
   }
   return ret;
-} 
+}
+
+
+int tempAdd() {
+ nbVar++;
+ return nbVar; 
+}

@@ -8,7 +8,7 @@ enum eType {
   CONST_INT,
   INT
 };
-void addSymbole(char* name, int isConst, int isInit);
+int addSymbole(char* name, int isConst, int isInit);
 void yyerror(char const *err); 
 void addToTable(int id);
 void assignTypeInSymboleTable(enum eType);
