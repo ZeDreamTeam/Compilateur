@@ -22,9 +22,10 @@ void yyerror(char const  *err) {
 %token tCONST tINTDECL tEQEQ tVIRG
 %token tINF tSUP tADD tSUB tSTAR tDIV tPERC tEQ
 %token tIF tELSE
-%token tInt
-%token tVar
+%token <nombre>tInt
+%token <string>tVar
 %token tPRINTF
+
 
 %right tEQ
 %left tADD tSUB
@@ -45,7 +46,7 @@ Decl: tINTDECL DeclSuite {assignTypeInSymboleTable(INT); printTableSymbole();}
 DeclSuite:SingleDecl tINSTREND {  }
   | SingleDecl tVIRG DeclSuite 
     {
-    } 
+    }; 
 SingleDecl: tVar {  addSymbole($1,-1, 0);} 
   | tVar tEQ AffectRight { addSymbole($1,-1,1);};
 
