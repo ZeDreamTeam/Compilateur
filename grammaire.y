@@ -113,7 +113,9 @@ AffectRight: tVar {
     tempPop();
     $$ = $1;
   }
-  | tPARO AffectRight tPARC;
+  | tPARO AffectRight tPARC { 
+   $$ = $2; 
+  };
 
 StructCondBlock: IfBlock | IfElseBlock;
 
