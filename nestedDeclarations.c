@@ -5,6 +5,7 @@
 DeclarationsDescriptor mainDeclarations={NULL,0,0,NULL};
 
 void oneStepDeeper(){
+  printf("IF ENTER");
   int depth;
   DeclarationsDescriptor * next = malloc(sizeof(DeclarationsDescriptor));
   DeclarationsDescriptor * currentDeclaration = getCurrentDeclarationsDescriptor();
@@ -14,6 +15,7 @@ void oneStepDeeper(){
   next->currentBodyNumberOfDeclarations=0;
   currentDeclaration->next = next;
   next->prev = currentDeclaration;
+  next->next = NULL;
 }
 
 DeclarationsDescriptor* getCurrentDeclarationsDescriptor(){
@@ -25,6 +27,7 @@ DeclarationsDescriptor* getCurrentDeclarationsDescriptor(){
 }
 
 void unDeep(){
+  printf("IF OUT");
   DeclarationsDescriptor currentDeclarationsDescriptor = *getCurrentDeclarationsDescriptor();
   popDeclarationsInSymboleTable(currentDeclarationsDescriptor.currentBodyNumberOfDeclarations);
   currentDeclarationsDescriptor = *currentDeclarationsDescriptor.prev;
