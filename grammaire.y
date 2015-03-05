@@ -1,7 +1,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "toolsPLZ.h"
+#include "tableTemporaire.h"
 //#define MAXDECL 10
 
 extern int line;
@@ -60,7 +60,14 @@ BodySuite:OperationVariable
 
 OperationVariable: tVar tEQ AffectRight tINSTREND { symbolInit($1); printTableSymbole(); };
 
-AffectRight: tVar | tInt
+AffectRight: tVar {
+    if(getIndexWithVarName($1)==-1) {
+      char err[150];
+      strcat(err, "Error using the var ");
+      strcat(err, $1); 
+      yyerror(err);
+    } }
+  | tInt
   | AffectRight Operation AffectRight
   | tPARO AffectRight tPARC;
 

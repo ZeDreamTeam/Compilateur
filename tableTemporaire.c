@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "toolsPLZ.h"
+#include "tableTemporaire.h"
 #include "symbaleToble.h"
 
 int cursor = 0;
