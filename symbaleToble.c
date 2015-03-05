@@ -7,7 +7,7 @@
 
 
 Symbale symboles[MAX_VAR];
-int nbVar=0;
+int nbVar=-1;
 int nbTmp = MAX_VAR;
 
 int symbolePush(char* name, int isConst, int isInit) {
@@ -18,7 +18,7 @@ int symbolePush(char* name, int isConst, int isInit) {
     yyerror(err);
   }
   Symbale s = {nbVar++, name, isConst, isInit};
-  symboles[nbVar-1] = s;
+  symboles[nbVar] = s;
   return nbVar;
 }
 void symbolePop() {
@@ -37,7 +37,7 @@ void printTableSymbole(){
   int k;
   Symbale currentSymbole;
   printf("\n---------------------------------------------------------\n");
-  for(k=0;k<nbVar;k++){
+  for(k=0;k<=nbVar;k++){
      currentSymbole = symboles[k];
      printf("Entry %4d : %10s, isConst : %d, isInit : %d \n",currentSymbole.address,currentSymbole.name,currentSymbole.isConst,currentSymbole.isInit);
   }
@@ -61,7 +61,7 @@ void symbolInit(char* name){
 }
 int getIndexWithVarName(char* name){
   int i, ret=-1;  
-  for(i=0; i<nbVar; i++){
+  for(i=0; i<=nbVar; i++){
     if(strcmp(name, symboles[i].name) == 0){
       ret = i;
       break;

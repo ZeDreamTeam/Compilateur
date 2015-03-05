@@ -63,7 +63,12 @@ BodySuite:OperationVariable
   | StructPrint;
 
 
-OperationVariable: tVar tEQ AffectRight tINSTREND { symbolInit($1);};
+OperationVariable: tVar tEQ AffectRight tINSTREND { 
+  symbolInit($1);
+  int addrVar = getIndexWithVarName($1);
+  printf("COP %d %d", addrVar, $3);
+  tempPop();
+  };
 
 AffectRight: tVar {
     if(getIndexWithVarName($1)==-1) {
