@@ -5,38 +5,36 @@
 DeclarationsDescriptor mainDeclarations={NULL,0,0,NULL};
 
 void oneStepDeeper(){
-  printf("IF ENTER");
   int depth;
   DeclarationsDescriptor * next = malloc(sizeof(DeclarationsDescriptor));
-  DeclarationsDescriptor * currentDeclaration = getCurrentDeclarationsDescriptor();
+  DeclarationsDescriptor * currentDeclaration = getcurDeclsDescr();
   depth = currentDeclaration->depth;
   depth++;
   next->depth = depth;
-  next->currentBodyNumberOfDeclarations=0;
+  next->curBodyNmbDecls=0;
   currentDeclaration->next = next;
   next->prev = currentDeclaration;
   next->next = NULL;
 }
 
-DeclarationsDescriptor* getCurrentDeclarationsDescriptor(){
-  DeclarationsDescriptor* currentDeclarationsDescriptor = &mainDeclarations;
-  while(currentDeclarationsDescriptor->next != NULL){
-    currentDeclarationsDescriptor = currentDeclarationsDescriptor->next;
+DeclarationsDescriptor* getcurDeclsDescr(){
+  DeclarationsDescriptor* curDeclsDescr = &mainDeclarations;
+  while(curDeclsDescr->next != NULL){
+    curDeclsDescr = curDeclsDescr->next;
   }
-  return currentDeclarationsDescriptor;
+  return curDeclsDescr;
 }
 
 void unDeep(){
-  printf("IF OUT");
-  DeclarationsDescriptor currentDeclarationsDescriptor = *getCurrentDeclarationsDescriptor();
-  popDeclarationsInSymboleTable(currentDeclarationsDescriptor.currentBodyNumberOfDeclarations);
-  currentDeclarationsDescriptor = *currentDeclarationsDescriptor.prev;
-  free(currentDeclarationsDescriptor.next);
-  currentDeclarationsDescriptor.next = NULL;
+  DeclarationsDescriptor *curDeclsDescr = getcurDeclsDescr();
+  popDeclInSymbTable(curDeclsDescr->curBodyNmbDecls);
+  curDeclsDescr = curDeclsDescr->prev;
+  free(curDeclsDescr->next);
+  curDeclsDescr->next = NULL;
 }
 void addDecl(){
-  getCurrentDeclarationsDescriptor()->currentBodyNumberOfDeclarations++;
+  getcurDeclsDescr()->curBodyNmbDecls++;
 }
-void popDeclarationsInSymboleTable(int number){
+void popDeclInSymbTable(int number){
   popSymboles(number);
 }
