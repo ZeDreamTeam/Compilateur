@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "symbaleToble.h"
+#include "nestedDeclarations.h"
 
 #define MAX_VAR 256
 
@@ -17,6 +18,7 @@ int symbolePush(char* name, int isConst, int isInit) {
     strcat(err," already declared");
     yyerror(err);
   }
+  addDecl();
   Symbale s = {nbVar++, name, isConst, isInit};
   symboles[nbVar] = s;
   return nbVar;
@@ -79,4 +81,12 @@ int tempAdd() {
 int tempPop() {
   nbTmp++;
   return nbTmp;
+}
+void popSymboles(int number){
+  if(number<=nbVar){
+    nbVar -= number;
+  }
+  else{
+    yyerror("You can't pop that much");
+  }
 }

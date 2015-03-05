@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "tableTemporaire.h"
 #include "symbaleToble.h"
+#include "nestedDeclarations.h"
 
 int cursor = 0;
 

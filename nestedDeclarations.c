@@ -35,5 +35,5 @@ void addDecl(){
   getCurrentDeclarationsDescriptor()->currentBodyNumberOfDeclarations++;
 }
 void popDeclarationsInSymboleTable(int number){
-  //popSymboles(number);
+  popSymboles(number);
 }
