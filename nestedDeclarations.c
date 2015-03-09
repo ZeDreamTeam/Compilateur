@@ -31,3 +31,4 @@ void unDeepND(){
   curDeclsDescr = curDeclsDescr->prev;
   free(curDeclsDescr->next);
   curDeclsDescr->next = NULL;
+}
