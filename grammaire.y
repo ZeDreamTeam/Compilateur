@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "tableTemporaire.h"
-//#define MAXDECL 10
 
 extern int line;
 
