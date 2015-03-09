@@ -15,8 +15,6 @@ void oneStepDeeperND(){
   currentDeclaration->next = next;
   next->prev = currentDeclaration;
   next->next = NULL;
-  printTableSymboleST();
-  printf("\ncurrent Body adress : %d\n",getCurDeclsDescrND()->aCurBody);
 }
 
 DeclarationsDescriptorND* getCurDeclsDescrND(){
@@ -33,6 +31,3 @@ void unDeepND(){
   curDeclsDescr = curDeclsDescr->prev;
   free(curDeclsDescr->next);
   curDeclsDescr->next = NULL;
-  printTableSymboleST();
-  printf("\ncurrent adress : %d\n",getCurDeclsDescrND()->aCurBody);
-}

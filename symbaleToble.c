@@ -62,7 +62,7 @@ void symbolInitST(char* name){
 }
 int getIndexWithVarNameST(char* name){
   int i, ret=-1;  
-  for(i=0; i<=address; i++){
+  for(i=address; i>=0; i--){
     if(strcmp(name, symboles[i].name) == 0){
       ret = i;
       break;
