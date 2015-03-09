@@ -5,6 +5,8 @@
 #include "tableTemporaire.h"
 
 extern int line;
+
+int asmLine;
 void yyerror(char const  *err) {
   fprintf(stderr, "\n%s, line : %d\n",err, line); 
   exit(-1);
@@ -38,7 +40,7 @@ void yyerror(char const  *err) {
 %start Start
 %%
 
-Start: tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works");};
+Start: tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};
 Body: DeclBlock | DeclBlock BodySuite | BodySuite;
 
 DeclBlock: Decl
@@ -52,6 +54,7 @@ SingleDecl: tVar {  addSymboleTT($1,-1, 0);}
   | tVar tEQ AffectRight {
      int addr = addSymboleTT($1,-1,1);
      fprintf(out, "COP %d %d\n", addr, $3);
+     asmLine++;
      tempPopST();
   };
 
@@ -67,6 +70,7 @@ OperationVariable: tVar tEQ AffectRight tINSTREND {
   symbolInitST($1);
   int addrVar = getIndexWithVarNameST($1);
   fprintf(out, "COP %d %d\n", addrVar, $3);
+  asmLine++;
   tempPopST();
   };
 
@@ -79,37 +83,44 @@ AffectRight: tVar {
     } else {
       int affect = tempAddST();
       fprintf(out, "COP %d %d\n", affect, getIndexWithVarNameST($1));
+      asmLine++;
       $$ = affect;
     }
   }
   | tInt {
     int affect = tempAddST();
     fprintf(out, "AFC %d %d\n", affect, $1);
+    asmLine++;
     $$ = affect;
   }
   | AffectRight tADD AffectRight {
     fprintf(out, "ADD %d %d %d\n",  $1, $1, $3);
+    asmLine++;
     tempPopST();
     $$ = $1;
     }
   | AffectRight tSUB AffectRight {
     fprintf(out, "SOU %d %d %d\n", $1, $1, $3);
+    asmLine++;
     tempPopST(); 
     $$ = $1;
   }
   | AffectRight tSTAR AffectRight {
     fprintf(out, "MUL %d %d %d\n", $1, $1, $3);
+    asmLine++;
     tempPopST();
     $$ = $1;
   }
   | AffectRight tDIV AffectRight{
     fprintf(out, "DIV %d %d %d\n", $1, $1, $3);
+    asmLine++;
     tempPopST();
     $$ = $1;
 
   }
   | AffectRight tPERC AffectRight {
     fprintf(out,"MOD %d %d %d\n", $1, $1, $3);
+    asmLine++;
     tempPopST();
     $$ = $1;
   }
@@ -119,7 +130,7 @@ AffectRight: tVar {
 
 
 
-StructBlock: IfBlock
+StructBlock: IfBlock { updateJumpingJL(asmLine); displayJL(); }
   | IfElseBlock 
   | WhileBlock;
 
@@ -135,21 +146,30 @@ QuitContext : {unDeepND();} ;
 
 Cond: AffectRight tINF AffectRight {
     fprintf(out, "INF %d %d %d\n", $1, $1, $3);
+    asmLine++;
     fprintf(out, "JMF %d\n", $1);
-    addStatementJL(line);  
+    addStatementJL(asmLine);
+    asmLine++;
+    displayJL();
     tempPopST();
     $$=$1;
   }
   | AffectRight tSUP AffectRight {
     fprintf(out, "SUP %d %d %d\n", $1, $1, $3);
+    asmLine++;
     fprintf(out, "JMF %d\n", $1);
-    addStatementJL(line);
+    addStatementJL(asmLine);
+    asmLine++;
+    displayJL();
     tempPopST();
     $$=$1;
   }
   | AffectRight tEQEQ AffectRight{
    fprintf(out, "EQU %d %d %d\n", $1, $1, $3);
+   asmLine++;
    fprintf(out, "JMF %d\n", $1);
+   addStatementJL(asmLine);
+   asmLine++;
    tempPopST();
    $$=$1;
   };
@@ -171,7 +191,7 @@ int main(int argc, char * argv[]) {
   if(init==-1) {
     out=stdout;
   }
-
+  asmLine=1;
   yyparse();
 }
 
