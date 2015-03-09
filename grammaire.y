@@ -29,6 +29,7 @@ void yyerror(char const  *err) {
 %token tPRINTF
 
 %type <addr>AffectRight
+%type <addr>Cond
 
 %right tEQ
 %left tADD tSUB
@@ -119,7 +120,10 @@ AffectRight: tVar {
 
 
 
-StructBlock: IfBlock | IfElseBlock | WhileBlock;
+StructBlock: IfBlock { 
+  }
+  | IfElseBlock 
+  | WhileBlock;
 
 WhileBlock: tWHILE tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
 
@@ -131,8 +135,21 @@ NewContext : {oneStepDeeper();} ;
 
 QuitContext : {unDeep();} ;
 
-Cond: AffectRight OperateurCondition AffectRight;
+Cond: AffectRight tINF AffectRight {
+    printf("INF %d %d %d", $1, $1, $3);
+    tempPop();
+    $$=$1;
+  }
+  | AffectRight tSUP AffectRight {
+    printf("SUP %d %d %d", $1, $1, $3);
+    tempPop();
+    $$=$1;
+  }
+  | AffectRight tEQEQ AffectRight{
+   printf("EQU %d %d %d", $1, $1, $3);
+    tempPop();
+    $$=$1;
+  };
 
-OperateurCondition: tINF | tSUP | tEQEQ;
 
 StructPrint: tPRINTF tPARO tVar tPARC tINSTREND;
