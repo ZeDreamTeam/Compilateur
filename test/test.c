@@ -8,7 +8,9 @@ int main() {
   else {
     omg = 3;
   }
-
+  while(10>omg) {
+    omg = omg +1;
+  }
   test4 = omg + 2 *(3+4) - 5 * (3*3*3*(3*3*3))+2;
   printf(omg);
 

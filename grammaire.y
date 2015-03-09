@@ -23,7 +23,7 @@ void yyerror(char const  *err) {
 %token tMAIN tPARO tPARC tACCO tACCC tINSTREND
 %token tCONST tINTDECL tEQEQ tVIRG
 %token tINF tSUP tADD tSUB tSTAR tDIV tPERC tEQ
-%token tIF tELSE
+%token tIF tELSE tWHILE
 %token <nombre>tInt
 %token <string>tVar
 %token tPRINTF
@@ -58,8 +58,8 @@ SingleDecl: tVar {  addSymbole($1,-1, 0);}
 
 BodySuite:OperationVariable 
   | OperationVariable BodySuite
-  | StructCondBlock
-  | StructCondBlock BodySuite
+  | StructBlock
+  | StructBlock BodySuite
   | StructPrint;
 
 
@@ -117,7 +117,11 @@ AffectRight: tVar {
    $$ = $2; 
   };
 
-StructCondBlock: IfBlock | IfElseBlock;
+
+
+StructBlock: IfBlock | IfElseBlock | WhileBlock;
+
+WhileBlock: tWHILE tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
 
 IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
 
