@@ -31,7 +31,6 @@ void yyerror(char const  *err) {
 
 %type <addr>AffectRight
 %type <addr>Cond
-
 %right tEQ
 %left tADD tSUB
 %left tSTAR tDIV tPERC
@@ -68,7 +67,7 @@ BodySuite:OperationVariable
 OperationVariable: tVar tEQ AffectRight tINSTREND { 
   symbolInitST($1);
   int addrVar = getIndexWithVarNameST($1);
-  fprintf(out, "COP %d %d", addrVar, $3);
+  fprintf(out, "COP %d %d\n", addrVar, $3);
   tempPopST();
   };
 
@@ -121,8 +120,7 @@ AffectRight: tVar {
 
 
 
-StructBlock: IfBlock { 
-  }
+StructBlock: IfBlock
   | IfElseBlock 
   | WhileBlock;
 
@@ -138,18 +136,23 @@ QuitContext : {unDeepND();} ;
 
 Cond: AffectRight tINF AffectRight {
     fprintf(out, "INF %d %d %d\n", $1, $1, $3);
+    fprintf(out, "JMF %d\n", $1);
+    addStatementJL(line);  
     tempPopST();
     $$=$1;
   }
   | AffectRight tSUP AffectRight {
     fprintf(out, "SUP %d %d %d\n", $1, $1, $3);
+    fprintf(out, "JMF %d\n", $1);
+    addStatementJL(line);
     tempPopST();
     $$=$1;
   }
   | AffectRight tEQEQ AffectRight{
    fprintf(out, "EQU %d %d %d\n", $1, $1, $3);
-    tempPopST();
-    $$=$1;
+   fprintf(out, "JMF %d\n", $1);
+   tempPopST();
+   $$=$1;
   };
 
 
