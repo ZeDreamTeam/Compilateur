@@ -25,7 +25,7 @@ void addStatementJL(int statementLine) {
 
 void updateJumpingJL(int jumpingLine) {
   IfJmpList* cell = jumpingList;
-  while(cell->next->jumpingLine == -1) {
+  while(cell->next != NULL && cell->next->jumpingLine == -1) {
     cell = cell->next;
   }
   cell->jumpingLine = jumpingLine;
