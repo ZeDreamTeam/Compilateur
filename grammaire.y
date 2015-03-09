@@ -135,11 +135,19 @@ StructBlock: IfBlock { updateJumpingJL(asmLine); displayJL(); }
   | IfElseBlock 
   | WhileBlock;
 
-WhileBlock: tWHILE tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
+WhileBlock: tWHILE tPARO Cond tPARC tACCO NewContext Body JumpHere QuitContext tACCC;
 
-IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC;
+IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC ;
 
-IfElseBlock: IfBlock tELSE tACCO NewContext Body QuitContext tACCC;
+IfElseBlock: IfBlock JumpIncondit JumpHere tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
+
+JumpIncondit: {
+  //TODO: while comptés comme des ifs
+  fprintf(out, "JMP\n");
+  addStatementJL(asmLine);
+  asmLine++;
+  }
+JumpHere: { updateJumpingJL(asmLine); displayJL(); }
 
 NewContext : {oneStepDeeperND();} ;
 

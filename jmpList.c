@@ -25,12 +25,25 @@ void addStatementJL(int statementLine) {
 
 void updateJumpingJL(int jumpingLine) {
   IfJmpList* cell = jumpingList;
-  while(cell->next != NULL && cell->next->jumpingLine == -1) {
-    cell = cell->next;
+  if(jumpingList->next== NULL) {
+    jumpingList->jumpingLine == jumpingLine;
+  } else {
+    while(cell->next != NULL && cell->jumpingLine != -1) {
+      cell = cell->next;
+    }
+    cell->jumpingLine = jumpingLine;
   }
-  cell->jumpingLine = jumpingLine;
 }
+void clearLast() {
+  IfJmpList* cell = jumpingList;
+  if(cell!=NULL && cell->next != NULL) {
+    while(cell->next->next != NULL) {
+      cell = cell->next;
+    }
+  }
+  cell->next=NULL;
 
+}
 void displayJL() {
   printf("\n----------------------------------\n");
   IfJmpList* cell = jumpingList;

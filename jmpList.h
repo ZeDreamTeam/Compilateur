@@ -11,6 +11,8 @@ void addStatementJL(int statementLine);
 
 void updateJumpingJL(int jumpingLine);
 
+void clearLast();
+
 void displayJL();
 //IfJmpList* jumpingList=NULL;
 
