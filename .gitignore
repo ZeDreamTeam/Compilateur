@@ -2,6 +2,6 @@ lex.yy.c
 y.tab.*
 compil
 *.o
-
+out/*
 bin/
 bin/*

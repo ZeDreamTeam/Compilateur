@@ -47,8 +47,3 @@ const {return tCONST;}
 
 . { fail++;} 
 
-%%
-int main() {
-  yyparse();
-  printf("Nombre de tokens non matché : %d\n", fail);
-}
