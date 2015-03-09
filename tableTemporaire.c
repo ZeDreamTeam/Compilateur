@@ -6,13 +6,13 @@
 
 int cursor = 0;
 
-int addSymbole(char* name, int isConst, int isInit){
-  int index = symbolePush(name, isConst, isInit);
-  addToTable(index);
+int addSymboleTT(char* name, int isConst, int isInit){
+  int index = symbolePushST(name, isConst, isInit);
+  addToTableTT(index);
   return index;
 }
 
-void addToTable(int id){
+void addToTableTT(int id){
   if(cursor < DECLMAX){
     tempTable[cursor] = id;
     cursor++;
@@ -21,10 +21,10 @@ void addToTable(int id){
   }
 }
 
-void flushTable(){
+void flushTableTT(){
   cursor = 0 ;
 }
-void assignTypeInSymboleTable(enum eType enumType) {
+void assignTypeInSymboleTableTT(enum eType enumType) {
   int currentIndex, i, type;
   switch(enumType){
     case CONST_INT:
@@ -36,7 +36,7 @@ void assignTypeInSymboleTable(enum eType enumType) {
   }
   for(i=0;i<cursor;i++){
     currentIndex = tempTable[i]-1;
-    setIfSymboleIsConst(currentIndex,type); 
+    setIfSymboleIsConstST(currentIndex,type); 
   }
-  flushTable();
+  flushTableTT();
 }

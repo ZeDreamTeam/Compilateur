@@ -2,39 +2,33 @@
 #include <stdlib.h>
 #include "nestedDeclarations.h"
 
-DeclarationsDescriptor mainDeclarations={NULL,0,0,NULL};
+DeclarationsDescriptorND mainDeclarations={NULL,0,0,NULL};
 
-void oneStepDeeper(){
+void oneStepDeeperND(){
   int depth;
-  DeclarationsDescriptor * next = malloc(sizeof(DeclarationsDescriptor));
-  DeclarationsDescriptor * currentDeclaration = getcurDeclsDescr();
+  DeclarationsDescriptorND * next = malloc(sizeof(DeclarationsDescriptorND));
+  DeclarationsDescriptorND * currentDeclaration = getcurDeclsDescrND();
   depth = currentDeclaration->depth;
   depth++;
   next->depth = depth;
-  next->curBodyNmbDecls=0;
+  next->aCurBody=getCurrentAddrST();
   currentDeclaration->next = next;
   next->prev = currentDeclaration;
   next->next = NULL;
 }
 
-DeclarationsDescriptor* getcurDeclsDescr(){
-  DeclarationsDescriptor* curDeclsDescr = &mainDeclarations;
+DeclarationsDescriptorND* getcurDeclsDescrND(){
+  DeclarationsDescriptorND* curDeclsDescr = &mainDeclarations;
   while(curDeclsDescr->next != NULL){
     curDeclsDescr = curDeclsDescr->next;
   }
   return curDeclsDescr;
 }
 
-void unDeep(){
-  DeclarationsDescriptor *curDeclsDescr = getcurDeclsDescr();
-  popDeclInSymbTable(curDeclsDescr->curBodyNmbDecls);
+void unDeepND(){
+  DeclarationsDescriptorND *curDeclsDescr = getcurDeclsDescrND();
+  popTilST(curDeclsDescr->aCurBody);
   curDeclsDescr = curDeclsDescr->prev;
   free(curDeclsDescr->next);
   curDeclsDescr->next = NULL;
-}
-void addDecl(){
-  getcurDeclsDescr()->curBodyNmbDecls++;
-}
-void popDeclInSymbTable(int number){
-  popSymboles(number);
 }

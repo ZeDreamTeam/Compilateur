@@ -8,26 +8,26 @@
 
 
 Symbale symboles[MAX_VAR];
-int nbVar=-1;
+int adress=-1;
 int nbTmp = MAX_VAR;
 
-int symbolePush(char* name, int isConst, int isInit) {
-  if(getIndexWithVarName(name)!=-1){
+int symbolePushST(char* name, int isConst, int isInit) {
+  if(getIndexWithVarNameST(name)!=-1){
     char err[50] = "Var ";
     strcat(err,name);
     strcat(err," already declared");
     yyerror(err);
   }
-  addDecl();
-  Symbale s = {nbVar++, name, isConst, isInit};
-  symboles[nbVar] = s;
-  return nbVar;
+  //addDecl();
+  Symbale s = {adress++, name, isConst, isInit};
+  symboles[adress] = s;
+  return adress;
 }
-void symbolePop() {
-  nbVar--;
+void symbolePopST() {
+  adress--;
 }
-void setIfSymboleIsConst(int index, int isConst){
-  if(index <= nbVar){
+void setIfSymboleIsConstST(int index, int isConst){
+  if(index <= adress){
     symboles[index].isConst = isConst;
   }
   else{
@@ -35,35 +35,35 @@ void setIfSymboleIsConst(int index, int isConst){
   }
 }
 
-void printTableSymbole(){
+void printTableSymboleST(){
   int k;
   Symbale currentSymbole;
   printf("\n---------------------------------------------------------\n");
-  for(k=0;k<=nbVar;k++){
+  for(k=0;k<=adress;k++){
      currentSymbole = symboles[k];
      printf("Entry %4d : %10s, isConst : %d, isInit : %d \n",currentSymbole.address,currentSymbole.name,currentSymbole.isConst,currentSymbole.isInit);
   }
   printf("\n---------------------------------------------------------\n");
 }
-void setIsInit(int index){
-  if(index <= nbVar){
+void setIsInitST(int index){
+  if(index <= adress){
     symboles[index].isInit = 1;
   }else {
     yyerror("Symbol table contains too few arguments");
   }
 }
-void symbolInit(char* name){
+void symbolInitST(char* name){
   int index;
-  if((index = getIndexWithVarName(name))!=-1){
-    setIsInit(index);
+  if((index = getIndexWithVarNameST(name))!=-1){
+    setIsInitST(index);
   }
   else{
     yyerror("var not declared");
   }
 }
-int getIndexWithVarName(char* name){
+int getIndexWithVarNameST(char* name){
   int i, ret=-1;  
-  for(i=0; i<=nbVar; i++){
+  for(i=0; i<=adress; i++){
     if(strcmp(name, symboles[i].name) == 0){
       ret = i;
       break;
@@ -73,20 +73,23 @@ int getIndexWithVarName(char* name){
 }
 
 
-int tempAdd() {
+int tempAddST() {
  nbTmp--;
  return nbTmp; 
 }
 
-int tempPop() {
+int tempPopST() {
   nbTmp++;
   return nbTmp;
 }
-void popSymboles(int number){
-  if(number<=nbVar){
-    nbVar -= number;
+void popTilST(int addrToReturn){
+  if(addrToReturn<=adress){
+    adress = addrToReturn;
   }
   else{
     yyerror("You can't pop that much");
   }
+}
+int getCurrentAddrST(){
+  return adress;
 }

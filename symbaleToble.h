@@ -7,14 +7,15 @@ typedef struct {
     int isConst;
     int isInit;
 } Symbale;
-void printTableSymbole();
+void printTableSymboleST();
 void yyerror(char const *err);
-void setIfSymboleIsConst(int index, int isConst);
-int symbolePush(char* name, int isConst, int isInit);
-void symbolePop();
-void setIsInit(int index);
-void symbolInit(char* name);
-int getIndexWithVarName(char* name);
-int tempAdd();
-int tempPop();
+void setIfSymboleIsConstST(int index, int isConst);
+int symbolePushST(char* name, int isConst, int isInit);
+void symbolePopST();
+void setIsInitST(int index);
+void symbolInitST(char* name);
+void popTilST(int adress);
+int getIndexWithVarNameST(char* name);
+int tempAddST();
+int tempPopST();
 #endif

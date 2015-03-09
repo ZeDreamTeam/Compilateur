@@ -4,13 +4,11 @@
 typedef struct DeclDescr{
   struct DeclDescr* prev;
   int depth;
-  int curBodyNmbDecls;
+  int aCurBody;
   struct DeclDescr* next;
-}DeclarationsDescriptor;
+}DeclarationsDescriptorND;
 
-void oneStepDeeper();
-DeclarationsDescriptor* getcurDeclsDescr();
-void unDeep();
-void addDecl();
-void popDeclInSymbTable(int number);
+void oneStepDeeperND();
+DeclarationsDescriptorND* getcurDeclsDescrND();
+void unDeepND();
 #endif
