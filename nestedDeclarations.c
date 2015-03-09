@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include "nestedDeclarations.h"
 
-DeclarationsDescriptorND mainDeclarations={NULL,0,0,NULL};
+DeclarationsDescriptorND mainDeclarations={NULL,0,-1,NULL};
 
 void oneStepDeeperND(){
   int depth;
   DeclarationsDescriptorND * next = malloc(sizeof(DeclarationsDescriptorND));
-  DeclarationsDescriptorND * currentDeclaration = getcurDeclsDescrND();
+  DeclarationsDescriptorND * currentDeclaration = getCurDeclsDescrND();
   depth = currentDeclaration->depth;
   depth++;
   next->depth = depth;
@@ -15,9 +15,11 @@ void oneStepDeeperND(){
   currentDeclaration->next = next;
   next->prev = currentDeclaration;
   next->next = NULL;
+  printTableSymboleST();
+  printf("\ncurrent Body adress : %d\n",getCurDeclsDescrND()->aCurBody);
 }
 
-DeclarationsDescriptorND* getcurDeclsDescrND(){
+DeclarationsDescriptorND* getCurDeclsDescrND(){
   DeclarationsDescriptorND* curDeclsDescr = &mainDeclarations;
   while(curDeclsDescr->next != NULL){
     curDeclsDescr = curDeclsDescr->next;
@@ -26,9 +28,11 @@ DeclarationsDescriptorND* getcurDeclsDescrND(){
 }
 
 void unDeepND(){
-  DeclarationsDescriptorND *curDeclsDescr = getcurDeclsDescrND();
+  DeclarationsDescriptorND *curDeclsDescr = getCurDeclsDescrND();
   popTilST(curDeclsDescr->aCurBody);
   curDeclsDescr = curDeclsDescr->prev;
   free(curDeclsDescr->next);
   curDeclsDescr->next = NULL;
+  printTableSymboleST();
+  printf("\ncurrent adress : %d\n",getCurDeclsDescrND()->aCurBody);
 }

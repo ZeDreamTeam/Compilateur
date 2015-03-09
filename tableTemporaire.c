@@ -35,7 +35,7 @@ void assignTypeInSymboleTableTT(enum eType enumType) {
       break; 
   }
   for(i=0;i<cursor;i++){
-    currentIndex = tempTable[i]-1;
+    currentIndex = tempTable[i];
     setIfSymboleIsConstST(currentIndex,type); 
   }
   flushTableTT();

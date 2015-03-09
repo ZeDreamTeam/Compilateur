@@ -9,6 +9,6 @@ typedef struct DeclDescr{
 }DeclarationsDescriptorND;
 
 void oneStepDeeperND();
-DeclarationsDescriptorND* getcurDeclsDescrND();
+DeclarationsDescriptorND* getCurDeclsDescrND();
 void unDeepND();
 #endif
