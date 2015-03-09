@@ -8,26 +8,25 @@
 
 
 Symbale symboles[MAX_VAR];
-int adress=-1;
+int address=-1;
 int nbTmp = MAX_VAR;
 
 int symbolePushST(char* name, int isConst, int isInit) {
-  if(getIndexWithVarNameST(name)!=-1){
+  if(isAlreadyDeclaredST(name) == 0){
     char err[50] = "Var ";
     strcat(err,name);
     strcat(err," already declared");
     yyerror(err);
   }
-  //addDecl();
-  Symbale s = {adress++, name, isConst, isInit};
-  symboles[adress] = s;
-  return adress;
+  Symbale s = {++address, name, isConst, isInit};
+  symboles[address] = s;
+  return address;
 }
 void symbolePopST() {
-  adress--;
+  address--;
 }
 void setIfSymboleIsConstST(int index, int isConst){
-  if(index <= adress){
+  if(index <= address){
     symboles[index].isConst = isConst;
   }
   else{
@@ -39,14 +38,14 @@ void printTableSymboleST(){
   int k;
   Symbale currentSymbole;
   printf("\n---------------------------------------------------------\n");
-  for(k=0;k<=adress;k++){
+  for(k=0;k<=address;k++){
      currentSymbole = symboles[k];
      printf("Entry %4d : %10s, isConst : %d, isInit : %d \n",currentSymbole.address,currentSymbole.name,currentSymbole.isConst,currentSymbole.isInit);
   }
   printf("\n---------------------------------------------------------\n");
 }
 void setIsInitST(int index){
-  if(index <= adress){
+  if(index <= address){
     symboles[index].isInit = 1;
   }else {
     yyerror("Symbol table contains too few arguments");
@@ -63,7 +62,7 @@ void symbolInitST(char* name){
 }
 int getIndexWithVarNameST(char* name){
   int i, ret=-1;  
-  for(i=0; i<=adress; i++){
+  for(i=address; i>=0; i--){
     if(strcmp(name, symboles[i].name) == 0){
       ret = i;
       break;
@@ -71,7 +70,17 @@ int getIndexWithVarNameST(char* name){
   }
   return ret;
 }
-
+int isAlreadyDeclaredST(char* name){
+  int ret = -1, i;
+  int currBodyAddr = getCurDeclsDescrND()->aCurBody;
+  for(i=address; i>currBodyAddr; i--){
+    if(strcmp(name, symboles[i].name) == 0){
+      ret = 0;
+      break;
+    }
+  }
+  return ret;
+}
 
 int tempAddST() {
  nbTmp--;
@@ -83,13 +92,13 @@ int tempPopST() {
   return nbTmp;
 }
 void popTilST(int addrToReturn){
-  if(addrToReturn<=adress){
-    adress = addrToReturn;
+  if(addrToReturn<=address){
+    address = addrToReturn;
   }
   else{
     yyerror("You can't pop that much");
   }
 }
 int getCurrentAddrST(){
-  return adress;
+  return address;
 }
