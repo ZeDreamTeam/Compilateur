@@ -6,5 +6,11 @@ int main() {
     }
     omg = omg + 1;
   }
-
+  if(omg > 10) {
+    if(omg < 15) {
+      omg = omg + 1;
+    } else {
+      omg = omg -1;
+    }
+  }
 }

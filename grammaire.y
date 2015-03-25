@@ -138,10 +138,11 @@ WhileBlock: tWHILE tPARO Cond JumpWhile tPARC tACCO NewContext Body JumpIncondit
 
 IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC ;
 
-IfElseBlock: IfBlock JumpIncondit JumpHere tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
+IfElseBlock: IfBlock JumpIncondit tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
 
 JumpIncondit: {
   fprintf(out, "JMP\n");
+  updateJumpingJLFromBottom(asmLine+1);
   addStatementJL(asmLine);
   asmLine++;
   }
@@ -153,7 +154,8 @@ JumpInconditWhile: {
   displayJL();
   printf("Should work\n");
 }
-JumpHere: { updateJumpingJL(asmLine); displayJL(); }
+JumpHere: { updateJumpingJL(asmLine);
+ displayJL(); }
 
 NewContext : {oneStepDeeperND();} ;
 
