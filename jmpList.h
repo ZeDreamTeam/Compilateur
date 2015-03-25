@@ -4,12 +4,21 @@ typedef struct IfJmpList {
   int statementLine;
   int jumpingLine;
   struct IfJmpList* next;
+  struct IfJmpList* pred;
 } IfJmpList;
 
-
+/*
+if
+*/
 void addStatementJL(int statementLine);
 
 void updateJumpingJL(int jumpingLine);
+
+/*
+  while
+*/
+void addJumpingJL(int jumpingLine);
+void updateStatementLine(int statementLine);
 
 void clearLast();
 

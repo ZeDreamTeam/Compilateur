@@ -134,31 +134,47 @@ StructBlock: IfBlock { updateJumpingJL(asmLine); displayJL(); }
   | IfElseBlock 
   | WhileBlock;
 
-WhileBlock: tWHILE tPARO Cond tPARC tACCO NewContext Body JumpHere QuitContext tACCC;
+WhileBlock: tWHILE tPARO Cond JumpWhile tPARC tACCO NewContext Body JumpInconditWhile QuitContext tACCC;
 
-IfBlock: tIF tPARO Cond tPARC tACCO NewContext Body QuitContext tACCC ;
+IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC ;
 
 IfElseBlock: IfBlock JumpIncondit JumpHere tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
 
 JumpIncondit: {
-  //TODO: while comptés comme des ifs
   fprintf(out, "JMP\n");
   addStatementJL(asmLine);
   asmLine++;
   }
+JumpInconditWhile: {
+  fprintf(out, "JMP\n");
+  updateStatementLineFromBottom(asmLine);
+  asmLine++;
+  updateJumpingJLFromBottom(asmLine);
+  displayJL();
+  printf("Should work\n");
+}
 JumpHere: { updateJumpingJL(asmLine); displayJL(); }
 
 NewContext : {oneStepDeeperND();} ;
 
 QuitContext : {unDeepND();} ;
 
+JumpIf: {
+  addStatementJL(asmLine-1);
+  displayJL();
+}
+
+JumpWhile: {
+  addStatementJL(asmLine-1);
+  addJumpingJL(asmLine-2);
+  displayJL();
+}
+
 Cond: AffectRight tINF AffectRight {
     fprintf(out, "INF %d %d %d\n", $1, $1, $3);
     asmLine++;
     fprintf(out, "JMF %d\n", $1);
-    addStatementJL(asmLine);
     asmLine++;
-    displayJL();
     tempPopST();
     $$=$1;
   }
@@ -166,9 +182,7 @@ Cond: AffectRight tINF AffectRight {
     fprintf(out, "SUP %d %d %d\n", $1, $1, $3);
     asmLine++;
     fprintf(out, "JMF %d\n", $1);
-    addStatementJL(asmLine);
     asmLine++;
-    displayJL();
     tempPopST();
     $$=$1;
   }
@@ -176,7 +190,6 @@ Cond: AffectRight tINF AffectRight {
    fprintf(out, "EQU %d %d %d\n", $1, $1, $3);
    asmLine++;
    fprintf(out, "JMF %d\n", $1);
-   addStatementJL(asmLine);
    asmLine++;
    tempPopST();
    $$=$1;
