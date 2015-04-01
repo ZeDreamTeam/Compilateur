@@ -116,6 +116,32 @@ void displayJL() {
     cell = cell->next;
     i++;
   }
-  
+
+}
+
+
+IfJmpList* getJmpList() {
+
+  return jumpingList;
+}
+
+/*
+ * Should we jump on line line ?
+ * Returns the line to jump to if so, -1 otherwise.
+ */
+int isThereAJump(int line) {
+  IfJmpList* head = jumpingList;
+  IfJmpList* cur = head;
+  int res;
+  while(cur != NULL && cur->statementLine!= line) {
+    cur = cur->next;
+  }
+
+  if(cur != NULL)
+    res = cur->jumpingLine;
+  else
+    res = -1;
+  return res;
+
 }
 

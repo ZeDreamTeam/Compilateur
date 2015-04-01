@@ -25,4 +25,7 @@ void clearLast();
 void displayJL();
 //IfJmpList* jumpingList=NULL;
 
+
+IfJmpList* getJmpList();
+int isThereAJump(int line);
 #endif

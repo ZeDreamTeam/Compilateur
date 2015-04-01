@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "tableTemporaire.h"
-
+#include "jmpList.h"
 extern int line;
 
 int asmLine;
@@ -202,12 +202,14 @@ StructPrint: tPRINTF tPARO tVar tPARC tINSTREND;
 
 %%
 
+void addJmps();
+
 int main(int argc, char * argv[]) {
   int i=0;
   int init=-1;
   for(i=0;i<argc-1;i++) {
     if(strcmp("-f", argv[i])) {
-      out=fopen("out/file.asm", "w");
+      out=fopen("out/file.tmp", "w");
       init=0;
     }
   }
@@ -216,5 +218,45 @@ int main(int argc, char * argv[]) {
   }
   asmLine=1;
   yyparse();
+  if(init==0) {
+    fclose(out);
+    printf("Starting to insert jmps\n");
+    addJmps();
+
+  }
+}
+
+void addJmps() {
+  IfJmpList* jumpingList = getJmpList();
+  int line=0;
+  char buf[4096];
+  char* res = buf;
+  FILE* tmp = fopen("out/file.tmp", "r");
+  FILE * out = fopen("out/file.asm", "w");
+  while(res != NULL && jumpingList != NULL) {
+    line++;
+    int jmpLine = isThereAJump(line);
+    //If we have to jump on this line
+    if(jmpLine != -1) {
+      char c;
+      printf("Jmp on line %d", line);
+      
+      //If the line i is a jmp line, we write every chars until end of the line
+      c = fgetc(tmp);
+      while(c != '\n') {
+        fprintf(out,"%c", c);
+        c = fgetc(tmp);
+      }
+      //and then the line to jump to
+      fprintf(out," %d\n", jumpingList->jumpingLine);
+      jumpingList = jumpingList->next;
+    } else {
+      //if it isn't a jumping line, just write the line from the file
+      res = fgets(buf,sizeof(char)*4096,tmp);
+      fprintf(out, "%s", buf);
+    }
+  }
+  fclose(tmp);
+  fclose(out);
 }
 
