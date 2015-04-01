@@ -130,11 +130,11 @@ AffectRight: tVar {
 
 
 
-StructBlock: IfBlock { updateJumpingJL(asmLine); displayJL(); }
+StructBlock: IfBlock { updateJumpingJLFromBottom(asmLine); displayJL(); }
   | IfElseBlock 
   | WhileBlock;
 
-WhileBlock: tWHILE tPARO Cond JumpWhile tPARC tACCO NewContext Body JumpInconditWhile QuitContext tACCC;
+WhileBlock: tWHILE tPARO AddJumpingLineWhile Cond AddStatementLineWhile tPARC tACCO NewContext Body JumpInconditWhile QuitContext tACCC;
 
 IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC ;
 
@@ -166,9 +166,12 @@ JumpIf: {
   displayJL();
 }
 
-JumpWhile: {
+AddStatementLineWhile: {
   addStatementJL(asmLine-1);
-  addJumpingJL(asmLine-2);
+}
+AddJumpingLineWhile: {
+//  addStatementJL(asmLine-1);
+  addJumpingJL(asmLine);
   displayJL();
 }
 
