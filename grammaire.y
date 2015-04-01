@@ -251,7 +251,7 @@ void addJmps() {
         c = fgetc(tmp);
       }
       //and then the line to jump to
-      fprintf(out," %d\n", jumpingList->jumpingLine);
+      fprintf(out," %d\n", jmpLine);
       jumpingList = jumpingList->next;
     } else {
       //if it isn't a jumping line, just write the line from the file
