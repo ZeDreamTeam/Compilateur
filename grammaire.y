@@ -27,7 +27,7 @@ void yyerror(char const  *err) {
 %token tINF tSUP tADD tSUB tSTAR tDIV tPERC tEQ
 %token tIF tELSE tWHILE
 %token <nombre>tInt
-%token <string>tVar
+%token <string>tName
 %token tPRINTF
 
 %type <addr>AffectRight
@@ -40,7 +40,16 @@ void yyerror(char const  *err) {
 %start Start
 %%
 
-Start: tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};
+
+Start: Func Start | Func/*tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};*/;
+Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { printf("Function %s",$2);}
+  | tINTDECL tName tPARO tPARC tACCO Body tACCC { printf("Function %s",$2);};
+
+Args: SingleArg tVIRG Args | SingleArg ;
+
+SingleArg: tINTDECL tName { printf("arg %s", $2);}
+  | tCONST tINTDECL tName;
+
 Body: DeclBlock | DeclBlock BodySuite | BodySuite;
 
 DeclBlock: Decl
@@ -50,8 +59,8 @@ Decl: tINTDECL DeclSuite {assignTypeInSymboleTableTT(INT);}
 
 DeclSuite:SingleDecl tINSTREND
   | SingleDecl tVIRG DeclSuite; 
-SingleDecl: tVar {  addSymboleTT($1,-1, 0);} 
-  | tVar tEQ AffectRight {
+SingleDecl: tName {  addSymboleTT($1,-1, 0);} 
+  | tName tEQ AffectRight {
      int addr = addSymboleTT($1,-1,1);
      fprintf(out, "COP %d %d\n", addr, $3);
      asmLine++;
@@ -66,7 +75,7 @@ BodySuite:OperationVariable
   | StructPrint;
 
 
-OperationVariable: tVar tEQ AffectRight tINSTREND { 
+OperationVariable: tName tEQ AffectRight tINSTREND { 
   symbolInitST($1);
   int addrVar = getIndexWithVarNameST($1);
   fprintf(out, "COP %d %d\n", addrVar, $3);
@@ -74,7 +83,7 @@ OperationVariable: tVar tEQ AffectRight tINSTREND {
   tempPopST();
   };
 
-AffectRight: tVar {
+AffectRight: tName {
     if(getIndexWithVarNameST($1)==-1) {
       char err[150];
       strcat(err, "Error using the var ");
@@ -201,7 +210,7 @@ Cond: AffectRight tINF AffectRight {
   };
 
 
-StructPrint: tPRINTF tPARO tVar tPARC tINSTREND;
+StructPrint: tPRINTF tPARO tName tPARC tINSTREND;
 
 %%
 

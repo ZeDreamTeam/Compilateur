@@ -14,3 +14,9 @@ int main() {
     }
   }
 }
+
+
+int tarace(int omg, int omg2) {
+  int tomg=0;
+
+}
