@@ -8,8 +8,10 @@
 
 
 Symbale symboles[MAX_VAR];
-int address=-1;
+int address=-1;//Nombre de variable total.
 int nbTmp = MAX_VAR;
+int base=0;
+int addressRelative=-1;//Addresse relative
 
 int symbolePushST(char* name, int isConst, int isInit) {
   if(isAlreadyDeclaredST(name) == 0){
@@ -18,9 +20,9 @@ int symbolePushST(char* name, int isConst, int isInit) {
     strcat(err," already declared");
     yyerror(err);
   }
-  Symbale s = {++address, name, isConst, isInit};
-  symboles[address] = s;
-  return address;
+  Symbale s = {++addressRelative, name, isConst, isInit};
+  symboles[++address] = s;
+  return addressRelative;
 }
 void symbolePopST() {
   address--;
@@ -62,9 +64,9 @@ void symbolInitST(char* name){
 }
 int getIndexWithVarNameST(char* name){
   int i, ret=-1;  
-  for(i=address; i>=0; i--){
+  for(i=address; i>=address-addressRelative; i--){
     if(strcmp(name, symboles[i].name) == 0){
-      ret = i;
+      ret = symboles[i].address;
       break;
     }
   }
@@ -101,4 +103,7 @@ void popTilST(int addrToReturn){
 }
 int getCurrentAddrST(){
   return address;
+}
+void resetRelative() {
+  addressRelative = -1;
 }

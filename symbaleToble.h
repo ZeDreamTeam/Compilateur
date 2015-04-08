@@ -62,4 +62,10 @@ int tempPopST();
 
 /* retourne une erreur yacc.*/
 void yyerror(char const *err);
+
+/*
+ * Remet à 0 l'adresse relative
+ */
+void resetRelative();
+
 #endif
