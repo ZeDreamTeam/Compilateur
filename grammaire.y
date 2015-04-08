@@ -45,7 +45,7 @@ Start: Func Start | Func/*tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("
 Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { printf("Function %s",$2);}
   | tINTDECL tName tPARO tPARC tACCO Body tACCC { printf("Function %s",$2);};
 
-Args: SingleArg tVIRG Args | SingleArg ;
+Args: SingleArg tVIRG Args | SingleArg;
 
 SingleArg: tINTDECL tName { printf("arg %s", $2);}
   | tCONST tINTDECL tName;
@@ -72,7 +72,8 @@ BodySuite:OperationVariable
   | OperationVariable BodySuite
   | StructBlock
   | StructBlock BodySuite
-  | StructPrint;
+  | StructPrint
+  | FuncCall;
 
 
 OperationVariable: tName tEQ AffectRight tINSTREND { 
@@ -208,6 +209,13 @@ Cond: AffectRight tINF AffectRight {
    tempPopST();
    $$=$1;
   };
+
+
+FuncCall: tName tPARO tPARC tINSTREND
+  | tName tPARO ArgsCalled tPARC tINSTREND;
+
+ArgsCalled: SingleArgCalled | SingleArgCalled tVIRG ArgsCalled;
+SingleArgCalled: AffectRight;
 
 
 StructPrint: tPRINTF tPARO tName tPARC tINSTREND;
