@@ -32,6 +32,12 @@ void yyerror(char const  *err) {
 
 %type <addr>AffectRight
 %type <addr>Cond
+%type <nombre>Args
+%type <nombre>Body
+%type <nombre>FirstLine
+%type <nombre> ArgsCalled
+%type <nombre> SingleArgCalled
+
 %right tEQ
 %left tADD tSUB
 %left tSTAR tDIV tPERC
@@ -42,15 +48,21 @@ void yyerror(char const  *err) {
 
 
 Start: Func Start | Func/*tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};*/;
-Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { printf("Function %s",$2);}
-  | tINTDECL tName tPARO tPARC tACCO Body tACCC { printf("Function %s",$2);};
+Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { ftable_add($2,$4, $7);}
+  | tINTDECL tName tPARO tPARC tACCO Body tACCC {  ftable_add($2,0, $6);};
 
-Args: SingleArg tVIRG Args | SingleArg;
+Args: SingleArg tVIRG Args {  $$ = 1 + $3;}| SingleArg { $$ = 1;} /*Returns the number of args */;
 
-SingleArg: tINTDECL tName { printf("arg %s", $2);}
-  | tCONST tINTDECL tName;
+SingleArg: tINTDECL tName { 
+    int addr = symbolePushST($2, 0, 1);
+    fprintf(out, "AFC %d %d", addr, )
+  } | tCONST tINTDECL tName { $$ = $3;};
 
-Body: DeclBlock | DeclBlock BodySuite | BodySuite;
+Body: FirstLine DeclBlock { $$ = $1;} | FirstLine DeclBlock BodySuite {$$=$1;} | FirstLine BodySuite {$$ = $1;};
+
+FirstLine: {
+    $$ = asmLine;
+  }
 
 DeclBlock: Decl
   | Decl DeclBlock;
@@ -211,11 +223,16 @@ Cond: AffectRight tINF AffectRight {
   };
 
 
-FuncCall: tName tPARO tPARC tINSTREND
-  | tName tPARO ArgsCalled tPARC tINSTREND;
+FuncCall: tName tPARO tPARC tINSTREND { 
+    int lineToJumpTo = ftable_exists($1, 0);
+    //fprintf(out, "PUSH %d", asmLine+1);//PUSH @ret
+    //fprintf(out, "JMP %d", lineToJumpTo);
+  } | tName tPARO ArgsCalled tPARC tINSTREND{
+    int lineToJumpTo = ftable_exists($1, $3);
+  };
 
-ArgsCalled: SingleArgCalled | SingleArgCalled tVIRG ArgsCalled;
-SingleArgCalled: AffectRight;
+ArgsCalled: SingleArgCalled { $$ = $1; } | SingleArgCalled tVIRG ArgsCalled { $$ = $1 + $3; };
+SingleArgCalled: AffectRight { $$ = 1;};
 
 
 StructPrint: tPRINTF tPARO tName tPARC tINSTREND;
