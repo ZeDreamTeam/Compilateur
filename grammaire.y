@@ -54,9 +54,9 @@ Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { ftable_add($2,$4, $7);}
 Args: SingleArg tVIRG Args {  $$ = 1 + $3;}| SingleArg { $$ = 1;} /*Returns the number of args */;
 
 SingleArg: tINTDECL tName { 
-    int addr = symbolePushST($2, 0, 1);
-    fprintf(out, "AFC %d %d", addr, )
-  } | tCONST tINTDECL tName { $$ = $3;};
+    //int addr = symbolePushST($2, 0, 1);
+    //fprintf(out, "AFC %d %d", addr, )
+  } | tCONST tINTDECL tName {};
 
 Body: FirstLine DeclBlock { $$ = $1;} | FirstLine DeclBlock BodySuite {$$=$1;} | FirstLine BodySuite {$$ = $1;};
 
