@@ -24,6 +24,21 @@ int symbolePushST(char* name, int isConst, int isInit) {
   symboles[++address] = s;
   return addressRelative;
 }
+int symboleAddST(char* name, int isConst, int isInit, int relAddrToBP) {
+  if(isAlreadyDeclaredST(name) == 0) {
+    char err[50] = "Var ";
+    strcat(err,name);
+    strcat(err," already declared");
+    yyerror(err);
+  }
+
+  Symbale s = {relAddrToBP, name, isConst, isInit};
+  symboles[++address] = s;
+  return relAddrToBP;
+
+}
+
+
 void symbolePopST() {
   address--;
 }
@@ -32,17 +47,20 @@ void setIfSymboleIsConstST(int index, int isConst){
     symboles[index].isConst = isConst;
   }
   else{
-    yyerror("Symbol table contains too few arguments");
+    char* str = malloc(100*sizeof(char));
+    sprintf(str, "SetIfSymbIsConst: symbtable contains too few elements. Asked for %d/%d", index, address);
+    yyerror(str);
   }
 }
 
 void printTableSymboleST(){
   int k;
   Symbale currentSymbole;
+  printf("Total vars: %d; addressRelatives: %d, nbTmp: %d\n", address, addressRelative,nbTmp);
   printf("\n---------------------------------------------------------\n");
   for(k=0;k<=address;k++){
      currentSymbole = symboles[k];
-     printf("Entry %4d : %10s, isConst : %d, isInit : %d \n",currentSymbole.address,currentSymbole.name,currentSymbole.isConst,currentSymbole.isInit);
+     printf("Entry %d : addr : %4d, %10s, isConst : %d, isInit : %d \n",k, currentSymbole.address,currentSymbole.name,currentSymbole.isConst,currentSymbole.isInit);
   }
   printf("\n---------------------------------------------------------\n");
 }
@@ -50,7 +68,7 @@ void setIsInitST(int index){
   if(index <= address){
     symboles[index].isInit = 1;
   }else {
-    yyerror("Symbol table contains too few arguments");
+    yyerror("SetIsInitST: Symbol table contains too few arguments");
   }
 }
 void symbolInitST(char* name){
@@ -63,12 +81,22 @@ void symbolInitST(char* name){
   }
 }
 int getIndexWithVarNameST(char* name){
-  int i, ret=-1;  
-  for(i=address; i>=address-addressRelative; i--){
+  int i, ret, found = 0;
+  //int min = addressRelative != -1 ? addressRelative : 0;  
+  int min = 0;//getCurDeclsDescrND()->aCurBody;  
+  for(i=address; i>=min && found ==0; i--){
     if(strcmp(name, symboles[i].name) == 0){
       ret = symboles[i].address;
+      found = 1;
       break;
     }
+  }
+  if (found==0) {
+      char* err = malloc(sizeof(char)*100);
+      strcat(err, "Error var not declared: ");
+      strcat(err, name);
+      yyerror(err);
+
   }
   return ret;
 }
@@ -96,6 +124,7 @@ int tempPopST() {
 void popTilST(int addrToReturn){
   if(addrToReturn<=address){
     address = addrToReturn;
+    resetRelative();
   }
   else{
     yyerror("You can't pop that much");

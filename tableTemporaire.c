@@ -28,6 +28,7 @@ void flushTableTT(){
   cursor = 0 ;
 }
 void assignTypeInSymboleTableTT(enum eType enumType) {
+  printf("WE ARE AT %d", cursor);
   int currentIndex, i, type;
   switch(enumType){
     case CONST_INT:
@@ -38,6 +39,7 @@ void assignTypeInSymboleTableTT(enum eType enumType) {
       break; 
   }
   for(i=0;i<cursor;i++){
+    printf("%d ok\n", i);
     currentIndex = tempTable[i];
     setIfSymboleIsConstST(currentIndex,type); 
   }

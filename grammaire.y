@@ -33,10 +33,10 @@ void yyerror(char const  *err) {
 %type <addr>AffectRight
 %type <addr>Cond
 %type <nombre>Args
-%type <nombre>Body
-%type <nombre>FirstLine
 %type <nombre> ArgsCalled
 %type <nombre> SingleArgCalled
+
+%type <string>SingleArg
 
 %right tEQ
 %left tADD tSUB
@@ -48,21 +48,50 @@ void yyerror(char const  *err) {
 
 
 Start: Func Start | Func/*tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};*/;
-Func: tINTDECL tName tPARO Args tPARC tACCO Body tACCC { ftable_add($2,$4, $7);}
-  | tINTDECL tName tPARO tPARC tACCO Body tACCC {  ftable_add($2,0, $6);};
+Func: tINTDECL tName NewContext tPARO Args tPARC {
+  ftable_add($2,$5, asmLine);
+  fprintf(out, ".%s:\n",$2);
+  fprintf(out, "\tPUSH\tBP\n");
+  fprintf(out, "\tMOV\tBP\tSP\n");
+  asmLine+=3;
+}
+tACCO Body QuitContext tACCC {
+    //ftable_add($2,$5, $8);
+    //ftable_print();
+    //fprintf(out, "\tMOV\tSP\tBP\n");
+    fprintf(out, "\tPOP\tBP\n");
+    fprintf(out, "\tPOP\tIP\n");
+    asmLine+=2;
+  }
+  | tINTDECL tName NewContext tPARO tPARC {
+    ftable_add($2,0,asmLine); 
+    fprintf(out, ".%s:\n", $2);
+    fprintf(out, "\tPUSH\tBP\n");
+    fprintf(out, "\tMOV\tBP\t SP\n");
+    asmLine+=3;
+  }tACCO Body QuitContext tACCC {
+    //ftable_add($2,0, $7);
+    //ftable_print();
+    fprintf(out, "\tPOP\tBP\n");
+    fprintf(out, "\tPOP \tIP\n");
+    asmLine+=2;
+  };
 
-Args: SingleArg tVIRG Args {  $$ = 1 + $3;}| SingleArg { $$ = 1;} /*Returns the number of args */;
+Args: SingleArg tVIRG Args {
+    $$ = 1 + $3;
+    int addr = symboleAddST($1, 0, 1, -($$));
+  } | SingleArg {
+    $$ = 1;
+    int addr = symboleAddST($1, 0, 1, -$$);
+  } /*Returns the number of args */;
 
 SingleArg: tINTDECL tName { 
-    //int addr = symbolePushST($2, 0, 1);
-    //fprintf(out, "AFC %d %d", addr, )
-  } | tCONST tINTDECL tName {};
+    $$ = $2;
+  } | tCONST tINTDECL tName {
+    $$ = $3;
+  };
 
-Body: FirstLine DeclBlock { $$ = $1;} | FirstLine DeclBlock BodySuite {$$=$1;} | FirstLine BodySuite {$$ = $1;};
-
-FirstLine: {
-    $$ = asmLine;
-  }
+Body: DeclBlock | DeclBlock BodySuite | BodySuite;
 
 DeclBlock: Decl
   | Decl DeclBlock;
@@ -74,7 +103,7 @@ DeclSuite:SingleDecl tINSTREND
 SingleDecl: tName {  addSymboleTT($1,-1, 0);} 
   | tName tEQ AffectRight {
      int addr = addSymboleTT($1,-1,1);
-     fprintf(out, "COP %d %d\n", addr, $3);
+     fprintf(out, "\tCOP \t@%d \t@%d\n", addr, $3);
      asmLine++;
      tempPopST();
   };
@@ -91,57 +120,50 @@ BodySuite:OperationVariable
 OperationVariable: tName tEQ AffectRight tINSTREND { 
   symbolInitST($1);
   int addrVar = getIndexWithVarNameST($1);
-  fprintf(out, "COP %d %d\n", addrVar, $3);
+  fprintf(out, "\tCOP \t@%d \t@%d\n", addrVar, $3);
   asmLine++;
   tempPopST();
   };
 
 AffectRight: tName {
-    if(getIndexWithVarNameST($1)==-1) {
-      char err[150];
-      strcat(err, "Error using the var ");
-      strcat(err, $1); 
-      yyerror(err);
-    } else {
-      int affect = tempAddST();
-      fprintf(out, "COP %d %d\n", affect, getIndexWithVarNameST($1));
-      asmLine++;
-      $$ = affect;
-    }
+    int affect = tempAddST();
+    fprintf(out, "\tCOP \t@%d \t@%d\n", affect, getIndexWithVarNameST($1));
+    asmLine++;
+    $$ = affect;
   }
   | tInt {
     int affect = tempAddST();
-    fprintf(out, "AFC %d %d\n", affect, $1);
+    fprintf(out, "\tAFC \t@%d \t%d\n", affect, $1);
     asmLine++;
     $$ = affect;
   }
   | AffectRight tADD AffectRight {
-    fprintf(out, "ADD %d %d %d\n",  $1, $1, $3);
+    fprintf(out, "\tADD \t@%d \t@%d \t@%d\n",  $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
     }
   | AffectRight tSUB AffectRight {
-    fprintf(out, "SOU %d %d %d\n", $1, $1, $3);
+    fprintf(out, "\tSOU \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
     tempPopST(); 
     $$ = $1;
   }
   | AffectRight tSTAR AffectRight {
-    fprintf(out, "MUL %d %d %d\n", $1, $1, $3);
+    fprintf(out, "\tMUL \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
   }
   | AffectRight tDIV AffectRight{
-    fprintf(out, "DIV %d %d %d\n", $1, $1, $3);
+    fprintf(out, "\tDIV \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
 
   }
   | AffectRight tPERC AffectRight {
-    fprintf(out,"MOD %d %d %d\n", $1, $1, $3);
+    fprintf(out,"\tMOD \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
@@ -163,25 +185,24 @@ IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC ;
 IfElseBlock: IfBlock JumpIncondit tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
 
 JumpIncondit: {
-  fprintf(out, "JMP\n");
+  fprintf(out, "\tJMP \t\n");
   updateJumpingJLFromBottom(asmLine+1);
   addStatementJL(asmLine);
   asmLine++;
   }
 JumpInconditWhile: {
-  fprintf(out, "JMP\n");
+  fprintf(out, "\tJMP \t\n");
   updateStatementLineFromBottom(asmLine);
   asmLine++;
   updateJumpingJLFromBottom(asmLine);
   displayJL();
-  printf("Should work\n");
 }
 JumpHere: { updateJumpingJL(asmLine);
  displayJL(); }
 
-NewContext : {oneStepDeeperND();} ;
+NewContext : { oneStepDeeperND(); } ;
 
-QuitContext : {unDeepND();} ;
+QuitContext : { unDeepND(); } ;
 
 JumpIf: {
   addStatementJL(asmLine-1);
@@ -198,26 +219,29 @@ AddJumpingLineWhile: {
 }
 
 Cond: AffectRight tINF AffectRight {
-    fprintf(out, "INF %d %d %d\n", $1, $1, $3);
+    fprintf(out, "\tINF \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
-    fprintf(out, "JMF %d\n", $1);
+    fprintf(out, "\tJMF \t%d\n", $1);
     asmLine++;
+    tempPopST();//Two temp vars are used when checking conditions
     tempPopST();
     $$=$1;
   }
   | AffectRight tSUP AffectRight {
-    fprintf(out, "SUP %d %d %d\n", $1, $1, $3);
+    fprintf(out, "\tSUP \t@%d \t@%d \t@%d\n", $1, $1, $3);
     asmLine++;
-    fprintf(out, "JMF %d\n", $1);
+    fprintf(out, "\tJMF \t%d\n", $1);
     asmLine++;
+    tempPopST();
     tempPopST();
     $$=$1;
   }
   | AffectRight tEQEQ AffectRight{
-   fprintf(out, "EQU %d %d %d\n", $1, $1, $3);
+   fprintf(out, "\tEQU \t@%d \t@%d \t@%d\n", $1, $1, $3);
    asmLine++;
-   fprintf(out, "JMF %d\n", $1);
+   fprintf(out, "\tJMF \t%d\n", $1);
    asmLine++;
+   tempPopST();
    tempPopST();
    $$=$1;
   };
@@ -225,14 +249,23 @@ Cond: AffectRight tINF AffectRight {
 
 FuncCall: tName tPARO tPARC tINSTREND { 
     int lineToJumpTo = ftable_exists($1, 0);
-    //fprintf(out, "PUSH %d", asmLine+1);//PUSH @ret
-    //fprintf(out, "JMP %d", lineToJumpTo);
+    fprintf(out, "\tPUSH \tIP\n");//PUSH @ret
+    fprintf(out, "\tJMP \t%d\n", lineToJumpTo);
+    asmLine+=2;
   } | tName tPARO ArgsCalled tPARC tINSTREND{
+    printf("Looking for %s (%d args)\n", $1,$3);
     int lineToJumpTo = ftable_exists($1, $3);
+    fprintf(out, "\tPUSH \tIP\n");//PUSH @ret
+    fprintf(out, "\tJMP \t%d\n", lineToJumpTo);
   };
 
 ArgsCalled: SingleArgCalled { $$ = $1; } | SingleArgCalled tVIRG ArgsCalled { $$ = $1 + $3; };
-SingleArgCalled: AffectRight { $$ = 1;};
+SingleArgCalled: AffectRight {
+    fprintf(out, "\tPUSH \t%d\n", $1);
+    asmLine+=2;
+    $$ = 1;
+    tempPopST();//A tmp var is used by AffectRight.
+  };
 
 
 StructPrint: tPRINTF tPARO tName tPARC tINSTREND;
@@ -270,6 +303,14 @@ void addJmps() {
   char* res = buf;
   FILE* tmp = fopen("out/file.tmp", "r");
   FILE * out = fopen("out/file.asm", "w");
+  if(jumpingList == NULL) {
+    while(res != NULL) {
+      res = fgets(buf,sizeof(char)*4096,tmp);
+      if(res > 0) {
+        fprintf(out, "%s", buf);
+      }
+    }
+  }
   while(res != NULL && jumpingList != NULL) {
     line++;
     int jmpLine = isThereAJump(line);
