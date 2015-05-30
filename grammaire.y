@@ -46,43 +46,50 @@ void yyerror(char const  *err) {
 %start Start
 %%
 
+Start: FirstLine StartSuite;
 
-Start: Func Start | Func/*tINTDECL tMAIN tPARO tPARC tACCO Body  tACCC {printf("Everything works. %d lines of ASM", asmLine);};*/;
+StartSuite: Func StartSuite | Func;
+FirstLine: {
+  fprintf(out, "\tJMP \n");
+  asmLine++;
+}
 Func: tINTDECL tName NewContext tPARO Args tPARC {
   ftable_add($2,$5, asmLine);
+  if(strcmp($2, "main")==0) {
+    addJumpJL(1, asmLine);
+  }
   fprintf(out, ".%s:\n",$2);
   fprintf(out, "\tPUSH\tBP\n");
   fprintf(out, "\tMOV\tBP\tSP\n");
   asmLine+=3;
+  ftable_print();
 }
 tACCO Body QuitContext tACCC {
-    //ftable_add($2,$5, $8);
-    //ftable_print();
-    //fprintf(out, "\tMOV\tSP\tBP\n");
     fprintf(out, "\tPOP\tBP\n");
     fprintf(out, "\tPOP\tIP\n");
     asmLine+=2;
   }
   | tINTDECL tName NewContext tPARO tPARC {
     ftable_add($2,0,asmLine); 
+    if(strcmp($2, "main")==0) {
+      addJumpJL(1, asmLine);
+    }
     fprintf(out, ".%s:\n", $2);
     fprintf(out, "\tPUSH\tBP\n");
     fprintf(out, "\tMOV\tBP\t SP\n");
     asmLine+=3;
   }tACCO Body QuitContext tACCC {
-    //ftable_add($2,0, $7);
-    //ftable_print();
     fprintf(out, "\tPOP\tBP\n");
     fprintf(out, "\tPOP \tIP\n");
     asmLine+=2;
   };
 
 Args: SingleArg tVIRG Args {
-    $$ = 1 + $3;
-    int addr = symboleAddST($1, 0, 1, -($$));
+    $$ =1+ $3;
+    int addr = symboleAddST($1, 0, 1, -(2+$$));
   } | SingleArg {
     $$ = 1;
-    int addr = symboleAddST($1, 0, 1, -$$);
+    int addr = symboleAddST($1, 0, 1, -(2+$$));
   } /*Returns the number of args */;
 
 SingleArg: tINTDECL tName { 
@@ -253,16 +260,17 @@ FuncCall: tName tPARO tPARC tINSTREND {
     fprintf(out, "\tJMP \t%d\n", lineToJumpTo);
     asmLine+=2;
   } | tName tPARO ArgsCalled tPARC tINSTREND{
-    printf("Looking for %s (%d args)\n", $1,$3);
     int lineToJumpTo = ftable_exists($1, $3);
+    printf("Looking for %s(%d)", $1,$3);
     fprintf(out, "\tPUSH \tIP\n");//PUSH @ret
     fprintf(out, "\tJMP \t%d\n", lineToJumpTo);
+    asmLine+=2;
   };
 
 ArgsCalled: SingleArgCalled { $$ = $1; } | SingleArgCalled tVIRG ArgsCalled { $$ = $1 + $3; };
 SingleArgCalled: AffectRight {
-    fprintf(out, "\tPUSH \t%d\n", $1);
-    asmLine+=2;
+    fprintf(out, "\tPUSH \t@%d\n", $1);
+    asmLine++;
     $$ = 1;
     tempPopST();//A tmp var is used by AffectRight.
   };
@@ -310,31 +318,34 @@ void addJmps() {
         fprintf(out, "%s", buf);
       }
     }
-  }
-  while(res != NULL && jumpingList != NULL) {
-    line++;
-    int jmpLine = isThereAJump(line);
-    //If we have to jump on this line
-    if(jmpLine != -1) {
-      char c;
-      printf("Jmp on line %d", line);
+  } else {
+    while(res != NULL) {
+      line++;
+      int jmpLine = isThereAJump(line);
+      //If we have to jump on this line
+      if(jmpLine != -1) {
+        char c;
+        printf("Jmp on line %d\n", line);
       
-      //If the line i is a jmp line, we write every chars until end of the line
-      c = fgetc(tmp);
-      while(c != '\n') {
-        fprintf(out,"%c", c);
+        //If the line i is a jmp line, we write every chars until end of the line
         c = fgetc(tmp);
+        while(c != '\n') {
+          fprintf(out,"%c", c);
+          c = fgetc(tmp);
+        }
+        //and then the line to jump to
+        fprintf(out," %d\n", jmpLine);
+        jumpingList = jumpingList->next;
+      } else {
+        //if it isn't a jumping line, just write the line from the file
+        res = fgets(buf,sizeof(char)*4096,tmp);
+        if(res>0) {
+          fprintf(out, "%s", buf);
+        }
       }
-      //and then the line to jump to
-      fprintf(out," %d\n", jmpLine);
-      jumpingList = jumpingList->next;
-    } else {
-      //if it isn't a jumping line, just write the line from the file
-      res = fgets(buf,sizeof(char)*4096,tmp);
-      fprintf(out, "%s", buf);
     }
   }
-  fclose(tmp);
-  fclose(out);
+    fclose(tmp);
+    fclose(out);
 }
 

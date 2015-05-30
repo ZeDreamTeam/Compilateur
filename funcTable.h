@@ -4,7 +4,6 @@
 void ftable_add(char* name, int nbArgs, int line);
 
 int ftable_exists(char * name, int nbArgs);
-
-
+void ftable_print();
 
 #endif

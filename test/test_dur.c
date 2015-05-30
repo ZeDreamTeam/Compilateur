@@ -1,11 +1,19 @@
 int test(int omg, int omg2) {
   int tomg = omg +omg2;
+  int i;
+  while(i>omg) {
+    tomg=tomg-i;
+  }
   test(tomg, 1);
 }
 
 int main() {
   int a=0;
   int b=2;
-  test(a,b);
+  if(a>b) {
+    test(b,a);
+  } else {
+    test(a,b);
+  }
 }
 

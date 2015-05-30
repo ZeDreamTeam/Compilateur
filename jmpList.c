@@ -4,6 +4,27 @@
 IfJmpList* jumpingList=NULL;
 IfJmpList* lastCell=NULL;
 
+void addJumpJL(int from, int to) {
+  IfJmpList* cell = jumpingList;
+  IfJmpList* pred = NULL;
+  if(jumpingList==NULL) {
+    jumpingList = malloc(sizeof(IfJmpList));
+    cell = jumpingList;
+  } else {
+    while(cell->next != NULL) {
+      cell = cell->next;
+    }
+    cell->next = malloc(sizeof(IfJmpList));
+    pred=cell;
+    cell = cell->next;
+  }
+  cell->statementLine = from;
+  cell->jumpingLine = to;
+  cell->next = NULL;
+  cell->pred = pred;
+  lastCell = cell;
+}
+
 void addStatementJL(int statementLine) {
   IfJmpList* cell = jumpingList;
   IfJmpList* pred = NULL;  
