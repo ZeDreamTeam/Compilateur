@@ -7,6 +7,8 @@ typedef struct IfJmpList {
   struct IfJmpList* pred;
 } IfJmpList;
 
+void addJumpJL(int from, int to);
+
 /*
 if
 */
