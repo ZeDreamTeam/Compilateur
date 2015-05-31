@@ -51,12 +51,13 @@ Start: FirstLine StartSuite;
 StartSuite: Func StartSuite | Func;
 FirstLine: {
   fprintf(out, "\tJMP \n");
+  addMainJL();
   asmLine++;
 }
 Func: tINTDECL tName NewContext tPARO Args tPARC {
   ftable_add($2,$5, asmLine);
   if(strcmp($2, "main")==0) {
-    addJumpJL(1, asmLine);
+    updateMainJL(asmLine);
   }
   fprintf(out, ".%s:\n",$2);
   fprintf(out, "\tPUSH\tBP\n");
@@ -72,7 +73,7 @@ tACCO Body QuitContext tACCC {
   | tINTDECL tName NewContext tPARO tPARC {
     ftable_add($2,0,asmLine); 
     if(strcmp($2, "main")==0) {
-      addJumpJL(1, asmLine);
+      updateMainJL(asmLine);
     }
     fprintf(out, ".%s:\n", $2);
     fprintf(out, "\tPUSH\tBP\n");
@@ -110,7 +111,7 @@ DeclSuite:SingleDecl tINSTREND
 SingleDecl: tName {  addSymboleTT($1,-1, 0);} 
   | tName tEQ AffectRight {
      int addr = addSymboleTT($1,-1,1);
-     fprintf(out, "\tCOP \t@%d \t@%d\n", addr, $3);
+     fprintf(out, "\tCOP \t%d \t%d\n", addr, $3);
      asmLine++;
      tempPopST();
   };
@@ -127,50 +128,50 @@ BodySuite:OperationVariable
 OperationVariable: tName tEQ AffectRight tINSTREND { 
   symbolInitST($1);
   int addrVar = getIndexWithVarNameST($1);
-  fprintf(out, "\tCOP \t@%d \t@%d\n", addrVar, $3);
+  fprintf(out, "\tCOP \t%d \t%d\n", addrVar, $3);
   asmLine++;
   tempPopST();
   };
 
 AffectRight: tName {
     int affect = tempAddST();
-    fprintf(out, "\tCOP \t@%d \t@%d\n", affect, getIndexWithVarNameST($1));
+    fprintf(out, "\tCOP \t%d \t%d\n", affect, getIndexWithVarNameST($1));
     asmLine++;
     $$ = affect;
   }
   | tInt {
     int affect = tempAddST();
-    fprintf(out, "\tAFC \t@%d \t%d\n", affect, $1);
+    fprintf(out, "\tAFC \t%d \t%d\n", affect, $1);
     asmLine++;
     $$ = affect;
   }
   | AffectRight tADD AffectRight {
-    fprintf(out, "\tADD \t@%d \t@%d \t@%d\n",  $1, $1, $3);
+    fprintf(out, "\tADD \t%d \t%d \t%d\n",  $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
     }
   | AffectRight tSUB AffectRight {
-    fprintf(out, "\tSOU \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    fprintf(out, "\tSOU \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     tempPopST(); 
     $$ = $1;
   }
   | AffectRight tSTAR AffectRight {
-    fprintf(out, "\tMUL \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    fprintf(out, "\tMUL \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
   }
   | AffectRight tDIV AffectRight{
-    fprintf(out, "\tDIV \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    fprintf(out, "\tDIV \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
 
   }
   | AffectRight tPERC AffectRight {
-    fprintf(out,"\tMOD \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    fprintf(out,"\tMOD \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     tempPopST();
     $$ = $1;
@@ -187,7 +188,7 @@ StructBlock: IfBlock { updateJumpingJLFromBottom(asmLine); displayJL(); }
 
 WhileBlock: tWHILE tPARO AddJumpingLineWhile Cond AddStatementLineWhile tPARC tACCO NewContext Body JumpInconditWhile QuitContext tACCC;
 
-IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC ;
+IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC JumpHere;
 
 IfElseBlock: IfBlock JumpIncondit tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
 
@@ -205,13 +206,14 @@ JumpInconditWhile: {
   displayJL();
 }
 JumpHere: { updateJumpingJL(asmLine);
- displayJL(); }
+ printf("JUMPHERE\n"); }
 
 NewContext : { oneStepDeeperND(); } ;
 
 QuitContext : { unDeepND(); } ;
 
 JumpIf: {
+  printf("JumIF\n");
   addStatementJL(asmLine-1);
   displayJL();
 }
@@ -226,7 +228,8 @@ AddJumpingLineWhile: {
 }
 
 Cond: AffectRight tINF AffectRight {
-    fprintf(out, "\tINF \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    printf("COND\n");
+    fprintf(out, "\tINF \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     fprintf(out, "\tJMF \t%d\n", $1);
     asmLine++;
@@ -235,7 +238,7 @@ Cond: AffectRight tINF AffectRight {
     $$=$1;
   }
   | AffectRight tSUP AffectRight {
-    fprintf(out, "\tSUP \t@%d \t@%d \t@%d\n", $1, $1, $3);
+    fprintf(out, "\tSUP \t%d \t%d \t%d\n", $1, $1, $3);
     asmLine++;
     fprintf(out, "\tJMF \t%d\n", $1);
     asmLine++;
@@ -244,7 +247,7 @@ Cond: AffectRight tINF AffectRight {
     $$=$1;
   }
   | AffectRight tEQEQ AffectRight{
-   fprintf(out, "\tEQU \t@%d \t@%d \t@%d\n", $1, $1, $3);
+   fprintf(out, "\tEQU \t%d \t%d \t%d\n", $1, $1, $3);
    asmLine++;
    fprintf(out, "\tJMF \t%d\n", $1);
    asmLine++;
@@ -269,7 +272,7 @@ FuncCall: tName tPARO tPARC tINSTREND {
 
 ArgsCalled: SingleArgCalled { $$ = $1; } | SingleArgCalled tVIRG ArgsCalled { $$ = $1 + $3; };
 SingleArgCalled: AffectRight {
-    fprintf(out, "\tPUSH \t@%d\n", $1);
+    fprintf(out, "\tPUSH \t%d\n", $1);
     asmLine++;
     $$ = 1;
     tempPopST();//A tmp var is used by AffectRight.
@@ -311,6 +314,7 @@ void addJmps() {
   char* res = buf;
   FILE* tmp = fopen("out/file.tmp", "r");
   FILE * out = fopen("out/file.asm", "w");
+  displayJL();
   if(jumpingList == NULL) {
     while(res != NULL) {
       res = fgets(buf,sizeof(char)*4096,tmp);
@@ -334,7 +338,7 @@ void addJmps() {
           c = fgetc(tmp);
         }
         //and then the line to jump to
-        fprintf(out," %d\n", jmpLine);
+        fprintf(out,"\t%d\n", jmpLine);
         jumpingList = jumpingList->next;
       } else {
         //if it isn't a jumping line, just write the line from the file

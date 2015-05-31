@@ -4,7 +4,7 @@
 IfJmpList* jumpingList=NULL;
 IfJmpList* lastCell=NULL;
 
-void addJumpJL(int from, int to) {
+void addMainJL() {
   IfJmpList* cell = jumpingList;
   IfJmpList* pred = NULL;
   if(jumpingList==NULL) {
@@ -18,14 +18,21 @@ void addJumpJL(int from, int to) {
     pred=cell;
     cell = cell->next;
   }
-  cell->statementLine = from;
-  cell->jumpingLine = to;
+  cell->statementLine = 1;
+  cell->jumpingLine = -1;
   cell->next = NULL;
   cell->pred = pred;
   lastCell = cell;
 }
 
+void updateMainJL(int location) {
+  if (jumpingList != NULL) {
+    jumpingList->jumpingLine=location;
+  }
+}
+
 void addStatementJL(int statementLine) {
+  printf("Adding statement %d\n", statementLine);
   IfJmpList* cell = jumpingList;
   IfJmpList* pred = NULL;  
   if(jumpingList==NULL) {
@@ -47,6 +54,7 @@ void addStatementJL(int statementLine) {
 }
 
 void addJumpingJL(int jumpingLine) {
+  printf("Adding Jumping %d\n", jumpingLine);
   IfJmpList* cell = jumpingList;
   IfJmpList* pred = NULL;
   if(jumpingList==NULL) {
