@@ -6,6 +6,9 @@
 
 int cursor = 0;
 
+int tempTable[DECLMAX];
+
+
 int addSymboleTT(char* name, int isConst, int isInit){
   int index = symbolePushST(name, isConst, isInit);
   addToTableTT(index);
