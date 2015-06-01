@@ -23,5 +23,8 @@ make
 cat test/test.c | ./bin/compilo -f
 cat out/file.asm
 ```
-
+##Links
+See the other part of the project :
+- [MicroProcessor](https://github.com/ZeDreamTeam/MicroProcesseur/)
+- [French report](https://github.com/ZeDreamTeam/SystemeInfo_rapport)
 
