@@ -31,6 +31,11 @@ int symbolePushST(char* name, int isConst, int isInit);
 void symbolePopST();
 
 /*
+ * Add a symbole to the table, with his address relative to the base  pointer
+ */
+int symboleAddST(char* name, int isConst, int isInit, int relAddrToBP);
+
+/*
  * Défini qu'un symbole est initialisé.
  */
 void setIsInitST(int index);
@@ -62,4 +67,10 @@ int tempPopST();
 
 /* retourne une erreur yacc.*/
 void yyerror(char const *err);
+
+/*
+ * Remet à 0 l'adresse relative
+ */
+void resetRelative();
+
 #endif

@@ -18,7 +18,6 @@ SPACE [ \t]*
 <COMMENT>"\n" { line++;}
 <COMMENT>. {}
 int { return tINTDECL;}
-main {return tMAIN;}
 const {return tCONST;}
 "{" {return tACCO;}
 "}" {return tACCC;}
@@ -43,7 +42,7 @@ const {return tCONST;}
 "while" {return tWHILE;}
 {SPACE} {}
 {INTEGER} { yylval.nombre = atoi(yytext); return tInt;}
-{VARNAME} {yylval.string = strdup(yytext); return tVar;}
+{VARNAME} {yylval.string = strdup(yytext); return tName;}
 
 . { fail++;} 
 
