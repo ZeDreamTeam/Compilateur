@@ -193,13 +193,13 @@ IfBlock: tIF tPARO Cond JumpIf tPARC tACCO NewContext Body QuitContext tACCC Jum
 IfElseBlock: IfBlock JumpIncondit tELSE tACCO NewContext Body QuitContext tACCC JumpHere;
 
 JumpIncondit: {
-  fprintf(out, "\tJMP \t\n");
+  fprintf(out, "\tJMP \n");
   updateJumpingJLFromBottom(asmLine+1);
   addStatementJL(asmLine);
   asmLine++;
   }
 JumpInconditWhile: {
-  fprintf(out, "\tJMP \t\n");
+  fprintf(out, "\tJMP \n");
   updateStatementLineFromBottom(asmLine);
   asmLine++;
   updateJumpingJLFromBottom(asmLine);

@@ -1,16 +1,16 @@
 int main() {
-  int omg=0;
-  while(10>omg) {
-    while(10 > omg) {
-      omg = omg /2;
+  int maVar1=0;
+  int maVar2;
+  while(maVar1 < 10) {
+    maVar2 = 0;
+    while(maVar2 < 10) {
+      maVar2 = maVar2 + 1;
     }
-    omg = omg + 1;
+    maVar1 = maVar1 + 1;
   }
-  if(omg > 10) {
-    if(omg < 15) {
-      omg = omg + 1;
-    } else {
-      omg = omg -1;
-    }
-  }
+  if(maVar1 == maVar2) {
+    maVar1 = 5;
+  } else {
+    maVar1 = 10;
+  } 
 }
